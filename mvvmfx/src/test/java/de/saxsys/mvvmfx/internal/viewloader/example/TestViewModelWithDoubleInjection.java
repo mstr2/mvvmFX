@@ -17,13 +17,9 @@ package de.saxsys.mvvmfx.internal.viewloader.example;
 
 import de.saxsys.mvvmfx.ViewModel;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Created by Sven on 23/06/16.
  */
 public class TestViewModelWithDoubleInjection implements ViewModel {
-
-    @PostConstruct
     public void initialize() {}
 }

@@ -18,7 +18,9 @@ package de.saxsys.mvvmfx.internal.viewloader;
 import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.internal.viewloader.example.TestViewModel;
 import de.saxsys.mvvmfx.internal.viewloader.example.TestViewModelWithDoubleInjection;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +58,7 @@ public class ViewLoaderReflectionUtilsTest {
 		assertThat(viewModel).isNull();
 	}
 
+	@Disabled
 	@Test
 	public void testDoubleInjection() {
 		class TestView implements View<TestViewModelWithDoubleInjection> {}

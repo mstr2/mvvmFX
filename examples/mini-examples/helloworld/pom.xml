@@ -5,12 +5,33 @@
 	<parent>
 		<artifactId>mini-examples</artifactId>
 		<groupId>de.saxsys.mvvmfx</groupId>
-		<version>1.9.0-SNAPSHOT</version>
+		<version>1.9.0-ABC-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>helloworld</artifactId>
 	<name>HelloWorld Example</name>
+
+	<properties>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+
+		<java.version>11</java.version>
+		<mvvmfx.version>1.9.0-ABC-SNAPSHOT</mvvmfx.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>11</release>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 		<dependency>

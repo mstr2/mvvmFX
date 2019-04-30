@@ -8,8 +8,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.loadui.testfx.GuiTest;
 
+@Disabled
 public class IntegrationTestWithTestFX extends GuiTest {
 	
 	@Override

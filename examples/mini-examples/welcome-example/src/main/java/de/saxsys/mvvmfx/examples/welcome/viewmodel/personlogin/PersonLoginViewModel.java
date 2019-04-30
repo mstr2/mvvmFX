@@ -1,5 +1,6 @@
 package de.saxsys.mvvmfx.examples.welcome.viewmodel.personlogin;
 
+import de.saxsys.mvvmfx.utils.commands.DelegateAsyncCommand;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerProperty;
@@ -11,7 +12,7 @@ import javax.inject.Inject;
 import de.saxsys.mvvmfx.examples.welcome.model.Person;
 import de.saxsys.mvvmfx.examples.welcome.model.Repository;
 import de.saxsys.mvvmfx.ViewModel;
-import de.saxsys.mvvmfx.utils.commands.Action;
+import de.saxsys.mvvmfx.utils.commands.ParameterizedRunnable;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.itemlist.SelectableItemList;
@@ -73,12 +74,7 @@ public class PersonLoginViewModel implements ViewModel {
 
 	public Command getLoginCommand() {
 		if (loginCommand == null) {
-			loginCommand = new DelegateCommand(() -> new Action() {
-				@Override
-				protected void action() throws Exception {
-					performLogin();
-				}
-			}, createLoginPossibleBinding(), true);
+			loginCommand = new DelegateAsyncCommand(() -> performLogin(), createLoginPossibleBinding());
 		}
 		return loginCommand;
 	}

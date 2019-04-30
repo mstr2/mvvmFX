@@ -17,6 +17,8 @@ import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.ViewTuple;
 import de.saxsys.mvvmfx.internal.viewloader.example.TestViewModel;
 import de.saxsys.mvvmfx.testingutils.JfxToolkitExtension;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,8 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(JfxToolkitExtension.class)
 public class FxmlViewinDefaultPackageTest {
-	
-	
+
+    @Disabled
 	@Test
 	public void test() {
 		

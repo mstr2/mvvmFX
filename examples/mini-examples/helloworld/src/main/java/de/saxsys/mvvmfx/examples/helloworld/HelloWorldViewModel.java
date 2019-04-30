@@ -9,7 +9,7 @@ public class HelloWorldViewModel implements ViewModel {
 
 	private final StringProperty helloMessage = new SimpleStringProperty("Hello World");
 
-	public StringProperty helloMessage() {
+	public StringProperty helloMessageProperty() {
 		return helloMessage;
 	}
 

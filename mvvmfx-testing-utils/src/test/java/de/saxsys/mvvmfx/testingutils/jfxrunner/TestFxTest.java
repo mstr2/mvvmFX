@@ -3,6 +3,7 @@ package de.saxsys.mvvmfx.testingutils.jfxrunner;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.VBox;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.loadui.testfx.GuiTest;
 
@@ -15,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 
  * @author manuel.mauky
  */
+@Ignore
 public class TestFxTest extends GuiTest {
 	@Override
 	protected Parent getRootNode() {

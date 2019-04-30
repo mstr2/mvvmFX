@@ -16,7 +16,6 @@
 package de.saxsys.mvvmfx.internal.viewloader;
 
 import eu.lestard.doc.Internal;
-import sun.util.ResourceBundleEnumeration;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

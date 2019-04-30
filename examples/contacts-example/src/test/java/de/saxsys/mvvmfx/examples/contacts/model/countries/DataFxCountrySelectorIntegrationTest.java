@@ -4,6 +4,7 @@ import de.saxsys.mvvmfx.examples.contacts.model.Country;
 import de.saxsys.mvvmfx.testingutils.JfxToolkitExtension;
 import org.datafx.reader.converter.XmlConverter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @ExtendWith(JfxToolkitExtension.class)
 public class DataFxCountrySelectorIntegrationTest implements CountrySelectorInterfaceTest {
 

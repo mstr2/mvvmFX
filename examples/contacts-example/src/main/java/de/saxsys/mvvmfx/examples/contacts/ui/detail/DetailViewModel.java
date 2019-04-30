@@ -18,7 +18,7 @@ import de.saxsys.mvvmfx.examples.contacts.model.Contact;
 import de.saxsys.mvvmfx.examples.contacts.model.Repository;
 import de.saxsys.mvvmfx.examples.contacts.ui.scopes.ContactDialogScope;
 import de.saxsys.mvvmfx.examples.contacts.ui.scopes.MasterDetailScope;
-import de.saxsys.mvvmfx.utils.commands.Action;
+import de.saxsys.mvvmfx.utils.commands.ParameterizedRunnable;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import javafx.application.HostServices;
@@ -71,34 +71,24 @@ public class DetailViewModel implements ViewModel {
 
 		createBindingsForLabels(contactProperty);
 
-		editCommand = new DelegateCommand(() -> new Action() {
-			@Override
-			protected void action() throws Exception {
-				Contact selectedContact = getSelectedContactFromScope();
-				if (selectedContact != null) {
-					dialogscope.setContactToEdit(selectedContact);
-					publish(OPEN_EDIT_CONTACT_DIALOG);
-				}
+		editCommand = new DelegateCommand(() -> {
+			Contact selectedContact = getSelectedContactFromScope();
+			if (selectedContact != null) {
+				dialogscope.setContactToEdit(selectedContact);
+				publish(OPEN_EDIT_CONTACT_DIALOG);
 			}
 		}, getSelectedContactPropertyFromScope().isNotNull());
 
-		removeCommand = new DelegateCommand(() -> new Action() {
-			@Override
-			protected void action() throws Exception {
-				Contact selectedContact = getSelectedContactFromScope();
-				if (selectedContact != null) {
-					repository.delete(getSelectedContactFromScope());
-				}
+		removeCommand = new DelegateCommand(() -> {
+			Contact selectedContact = getSelectedContactFromScope();
+			if (selectedContact != null) {
+				repository.delete(getSelectedContactFromScope());
 			}
-
 		}, getSelectedContactPropertyFromScope().isNotNull());
 
-		emailLinkCommand = new DelegateCommand(() -> new Action() {
-			@Override
-			protected void action() throws Exception {
-				if (email.get() != null && !email.get().trim().isEmpty()) {
-					hostServices.showDocument("mailto:" + email.get());
-				}
+		emailLinkCommand = new DelegateCommand(() -> {
+			if (email.get() != null && !email.get().trim().isEmpty()) {
+				hostServices.showDocument("mailto:" + email.get());
 			}
 		});
 	}

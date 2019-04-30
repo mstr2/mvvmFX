@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.loadui.testfx.GuiTest;
 
 import de.saxsys.mvvmfx.FluentViewLoader;
@@ -15,6 +16,7 @@ import de.saxsys.mvvmfx.examples.books.backend.LibraryService;
 import de.saxsys.mvvmfx.examples.books.backend.LibraryServiceMockImpl;
 import eu.lestard.easydi.EasyDI;
 
+@Disabled
 public class BooksExampleIT extends GuiTest {
 	
 	

@@ -5,6 +5,7 @@ import de.saxsys.mvvmfx.examples.contacts.model.Subdivision;
 import de.saxsys.mvvmfx.examples.contacts.model.countries.CountrySelector;
 import javafx.application.Platform;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public interface CountrySelectorInterfaceTest {
 
 	CountrySelector getCountrySelector();
 
+	@Disabled
 	@Test
 	default void testLoadSubdivisions() throws Exception {
 		CountrySelector countrySelector = getCountrySelector();

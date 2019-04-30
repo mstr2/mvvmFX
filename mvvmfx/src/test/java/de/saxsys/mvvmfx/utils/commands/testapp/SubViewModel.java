@@ -25,8 +25,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.stream.IntStream;
-
 /**
  * @author manuel.mauky
  */
@@ -44,9 +42,9 @@ public class SubViewModel implements ViewModel {
 		
 		Service service = new Service();
 		
-		rollDiceCommand = new DelegateCommand(() -> new Action() {
+		rollDiceCommand = new DelegateCommand(new Action() {
 			@Override
-			protected void action() throws Exception {
+			protected void action(Object parameter) {
 				updateProgress(0, NUMBERS);
 				Platform.runLater(numbers::clear);
 				for (int i = 0; i < NUMBERS; i++) {
@@ -56,7 +54,7 @@ public class SubViewModel implements ViewModel {
 					Platform.runLater(() -> numbers.add(newNumber));
 				}
 			}
-		}, active, true);
+		}, active);
 		
 		
 	}

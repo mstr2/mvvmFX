@@ -44,7 +44,7 @@ Here we develop new features. This release is unstable and shouldn't be used in 
 <dependency>
 		<groupId>de.saxsys</groupId>
 		<artifactId>mvvmfx</artifactId>
-		<version>1.9.0-SNAPSHOT</version>
+		<version>1.9.0-ABC-SNAPSHOT</version>
 </dependency>
 ```
 

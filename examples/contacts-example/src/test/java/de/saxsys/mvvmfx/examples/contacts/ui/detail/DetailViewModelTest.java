@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.saxsys.mvvmfx.examples.contacts.model.Contact;
@@ -44,6 +45,7 @@ public class DetailViewModelTest {
 		obi = new Contact();
 	}
 
+	@Disabled
 	@Test
 	public void testRemoveAction() {
 		selectedContact.set(null);

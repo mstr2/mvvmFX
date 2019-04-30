@@ -1,182 +1,201 @@
-/*******************************************************************************
- * Copyright 2015 Alexander Casall, Manuel Mauky
+/*
+ * INTEL CONFIDENTIAL
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (C) 2018 Intel Corporation
+ * Copyright (C) 2017 Intel Deutschland GmbH
+ * Copyright (C) 2016 MAVinci GmbH | A Part of Intel
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+ *
+ * This software and the related documents are Intel copyrighted materials, and
+ * your use of them is governed by the express license under which they were
+ * provided to you (License). Unless the License provides otherwise, you may not
+ * use, modify, copy, publish, distribute, disclose or transmit this software or
+ * the related documents without Intel's prior written permission.
+ *
+ *
+ * This software and the related documents are provided as is, with no express
+ * or implied warranties, other than those that are expressly stated in the
+ * License.
+ */
+
 package de.saxsys.mvvmfx.utils.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.DoubleExpression;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.value.ObservableDoubleValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import eu.lestard.doc.Beta;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
-import java.util.concurrent.Callable;
-import java.util.function.Function;
+public class CompositeCommand implements Command {
 
-/**
- * CompositeCommand is an aggregation of other commands - a list of {@link Command} references internally.
- * <p>
- * It allows you to hook up multiple command targets to a single root command that itself can be hooked up to a command
- * source such as a button or menu item.
- * <p>
- * The {@link CompositeCommand} can hold references to any {@link Command object} but typically you will use it in
- * conjunction with {@link DelegateCommand}s.
- * 
- * <p>
- * When the {@link CompositeCommand#execute} method is invoked it will invoke the {@link Command#execute} method on each
- * of the child commands.
- * 
- * <p>
- * 
- * When {@link #isExecutable()} is called to determine whether the command is enabled, it polls its child commands for
- * their result from {@link #isExecutable()}.
- * 
- * @author alexander.casall
- *
- */
-@Beta
-public class CompositeCommand extends CommandBase {
-	
-	private final ObservableList<Command> registeredCommands = FXCollections.observableArrayList();
-	
-	ReadOnlyDoubleWrapper progress = new ReadOnlyDoubleWrapper();
-	
-	/**
-	 * Creates a {@link CompositeCommand} with given commands.
-	 * 
-	 * @param commands
-	 *            to aggregate
-	 */
-	public CompositeCommand(Command... commands) {
-		initRegisteredCommandsListener();
-		
-		this.registeredCommands.addAll(commands);
-	}
-	
-	/**
-	 * Registers a new {@link Command} for aggregation.
-	 * 
-	 * @param command
-	 *            to register
-	 */
-	public void register(Command command) {
-		registeredCommands.add(command);
-	}
-	
-	/**
-	 * Unregisters a {@link Command} from aggregation.
-	 * 
-	 * @param command
-	 *            to unregister
-	 */
-	public void unregister(Command command) {
-		registeredCommands.remove(command);
-	}
-	
-	private void initRegisteredCommandsListener() {
-		this.registeredCommands.addListener((ListChangeListener<Command>) c -> {
-			while (c.next()) {
-				if (registeredCommands.isEmpty()) {
-					executable.unbind();
-					running.unbind();
-					progress.unbind();
-				} else {
-					BooleanBinding executableBinding = constantOf(true);
-					BooleanBinding runningBinding = constantOf(false);
+    private final BooleanProperty running =
+        new SimpleBooleanProperty(false) {
+            @Override
+            protected void invalidated() {
+                if (notRunning != null) {
+                    notRunning.set(!get());
+                }
 
-					for (Command registeredCommand : registeredCommands) {
-						ReadOnlyBooleanProperty currentExecutable = registeredCommand.executableProperty();
-						ReadOnlyBooleanProperty currentRunning = registeredCommand.runningProperty();
-						executableBinding = executableBinding.and(currentExecutable);
-						runningBinding = runningBinding.or(currentRunning);
-					}
-					executable.bind(executableBinding);
-					running.bind(runningBinding);
+                super.invalidated();
+            }
+        };
 
-					initProgressBinding();
-				}
-			}
-		});
-	}
-	
-	private void initProgressBinding() {
-		DoubleExpression tmp = constantOf(0);
+    private final BooleanProperty executable =
+        new SimpleBooleanProperty(true) {
+            @Override
+            protected void invalidated() {
+                if (notExecutable != null) {
+                    notExecutable.set(!get());
+                }
 
-		for (Command command : registeredCommands) {
-			final ReadOnlyDoubleProperty progressProperty = command.progressProperty();
+                super.invalidated();
+            }
+        };
 
-			/**
-			 * When the progress of a command is "undefined", the progress property has a value of -1.
-			 * But in our use case we like to have a value of 0 in this case. 
-			 * Therefore we create a custom binding here.
-			 */
-			final DoubleBinding normalizedProgress = Bindings
-					.createDoubleBinding(() -> (progressProperty.get() == -1) ? 0.0 : progressProperty.get(),
-							progressProperty);
+    private final DoubleProperty progress = new SimpleDoubleProperty(this, "progress");
 
-			tmp = tmp.add(normalizedProgress);
-		}
-		
-		int divisor = registeredCommands.isEmpty() ? 1 : registeredCommands.size();
-		progress.bind(Bindings.divide(tmp, divisor));
-	}
-	
-	@Override
-	public void execute() {
-		if (!isExecutable()) {
-			throw new RuntimeException("Not executable");
-		} else {
-			if (!registeredCommands.isEmpty()) {
-				registeredCommands.forEach(t -> t.execute());
-			}
-		}
-	}
-	
-	
-	@Override
-	public double getProgress() {
-		return progressProperty().get();
-	}
-	
-	@Override
-	public ReadOnlyDoubleProperty progressProperty() {
-		return progress;
-	}
-	
-	private BooleanBinding constantOf(boolean defaultValue) {
-		return new BooleanBinding() {
-			@Override
-			protected boolean computeValue() {
-				return defaultValue;
-			}
-		};
-	}
-	
-	private DoubleBinding constantOf(double defaultValue) {
-		return new DoubleBinding() {
-			@Override
-			protected double computeValue() {
-				return defaultValue;
-			}
-		};
-	}
-	
+    private final List<Command> commands;
+
+    private BooleanProperty notExecutable;
+    private BooleanProperty notRunning;
+
+    public CompositeCommand(Command... commands) {
+        this.commands = new ArrayList<>(Arrays.asList(commands));
+        reinitialize();
+    }
+
+    public void register(Command command) {
+        if (!commands.contains(command)) {
+            commands.add(command);
+            reinitialize();
+        }
+    }
+
+    public void unregister(Command command) {
+        if (commands.contains(command)) {
+            commands.remove(command);
+            reinitialize();;
+        }
+    }
+
+    /** Executes the commands synchronously in the order they were added to this CompositeCommand instance. */
+    @Override
+    public void execute() {
+        if (!isExecutable()) {
+            throw new RuntimeException("The command is not executable.");
+        }
+
+        for (Command command : commands) {
+            command.execute();
+        }
+    }
+
+    @Override
+    public boolean isExecutable() {
+        return executable.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty executableProperty() {
+        return executable;
+    }
+
+    @Override
+    public boolean isNotExecutable() {
+        return !executable.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty notExecutableProperty() {
+        if (notExecutable == null) {
+            notExecutable = new SimpleBooleanProperty(!executable.get());
+        }
+
+        return notExecutable;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty runningProperty() {
+        return running;
+    }
+
+    public boolean isNotRunning() {
+        return notRunning.get();
+    }
+
+    @Override
+    public ReadOnlyBooleanProperty notRunningProperty() {
+        if (notRunning == null) {
+            notRunning = new SimpleBooleanProperty(!running.get());
+        }
+
+        return notRunning;
+    }
+
+    @Override
+    public double getProgress() {
+        return progress.get();
+    }
+
+    @Override
+    public DoubleProperty progressProperty() {
+        return progress;
+    }
+
+    private void reinitialize() {
+        Observable[] dependencies = this.commands.stream().map(Command::executableProperty).toArray(Observable[]::new);
+
+        this.executable.unbind();
+        this.executable.bind(
+            Bindings.createBooleanBinding(
+                () -> {
+                    for (Command command : this.commands) {
+                        if (!command.isExecutable()) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                },
+                dependencies));
+
+        this.running.unbind();
+        this.running.bind(
+            Bindings.createBooleanBinding(
+                () -> {
+                    for (Command command : this.commands) {
+                        if (!command.isRunning()) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                },
+                dependencies));
+
+        this.progress.unbind();
+        this.progress.bind(
+            Bindings.createDoubleBinding(
+                () -> {
+                    double progress = 0;
+                    for (Command command : this.commands) {
+                        progress += command.getProgress();
+                    }
+
+                    return progress / this.commands.size();
+                },
+                dependencies));
+    }
+
 }

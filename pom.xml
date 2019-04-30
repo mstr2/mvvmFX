@@ -26,9 +26,9 @@
 	<groupId>de.saxsys</groupId>
 	<artifactId>mvvmfx-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.9.0-SNAPSHOT</version>
+	<version>1.9.0-ABC-SNAPSHOT</version>
 	<name>mvvmFX parent</name>
-	<description>Application Framework for MVVM with JavaFX.</description>
+	<description>MvvmFX with Advanced Bindings and Commands (ABC).</description>
 	<url>http://www.saxsys.de</url>
 	<developers>
 		<developer>
@@ -70,9 +70,11 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<sonar.java.source>1.8</sonar.java.source>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<sonar.java.source>11</sonar.java.source>
+		<java.version>11</java.version>
+		<mvvmfx.version>${project.version}</mvvmfx.version>
 	</properties>
 
 	<modules>
@@ -224,7 +226,7 @@
 			<dependency>
 				<groupId>nl.jqno.equalsverifier</groupId>
 				<artifactId>equalsverifier</artifactId>
-				<version>2.0.1</version>
+				<version>3.1.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -236,7 +238,9 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
 				<configuration>
-					<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+					<skip>true</skip>
+					<source>11</source>
+					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
 					<quiet>true</quiet>
 					<additionalparam>-Xdoclint:none</additionalparam>
 					<excludePackageNames>
@@ -390,5 +394,38 @@
 			</dependencies>
 		</profile>
 	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 </project>

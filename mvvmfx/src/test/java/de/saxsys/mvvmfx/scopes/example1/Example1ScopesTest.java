@@ -4,7 +4,6 @@ import de.saxsys.mvvmfx.FluentViewLoader;
 import de.saxsys.mvvmfx.scopes.example1.views.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.omg.SendingContext.RunTime;
 
 public class Example1ScopesTest {
 

@@ -3,7 +3,6 @@ package de.saxsys.mvvmfx.internal.viewloader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.util.Builder;
 import javafx.util.BuilderFactory;

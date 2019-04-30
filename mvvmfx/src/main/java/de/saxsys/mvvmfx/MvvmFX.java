@@ -15,6 +15,9 @@
  ******************************************************************************/
 package de.saxsys.mvvmfx;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import de.saxsys.mvvmfx.internal.BackgroundExecutorManager;
 import de.saxsys.mvvmfx.internal.viewloader.GlobalBuilderFactory;
 import de.saxsys.mvvmfx.internal.viewloader.ResourceBundleManager;
 import javafx.util.BuilderFactory;
@@ -25,6 +28,7 @@ import de.saxsys.mvvmfx.utils.notifications.NotificationCenterFactory;
 import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 
 import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
 
 /**
  * This class is a facade that is used by the user to access classes and services from the framework.
@@ -36,6 +40,13 @@ public class MvvmFX {
 	 */
 	public static NotificationCenter getNotificationCenter() {
 		return NotificationCenterFactory.getNotificationCenter();
+	}
+
+	/**
+	 * This method is used to set a custom executor service for mvvmFX async commands.
+	 */
+	public static void setCustomExecutorService(ListeningExecutorService executorService) {
+		BackgroundExecutorManager.getInstance().setCustomExecutorService(executorService);
 	}
 	
 	/**

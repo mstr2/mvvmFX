@@ -21,10 +21,12 @@ import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
 import de.saxsys.mvvmfx.FxmlPath;
 import de.saxsys.mvvmfx.internal.ContextImpl;
+import de.saxsys.mvvmfx.internal.viewloader.fxml.FXMLLoader;
+import de.saxsys.mvvmfx.internal.viewloader.fxml.FXMLLoaderFactory;
+import de.saxsys.mvvmfx.internal.viewloader.fxml.FXMLLoaderImpl;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.util.BuilderFactory;
 import javafx.util.Callback;
@@ -211,10 +213,7 @@ public class FxmlViewLoader {
             // for the SceneLifecycle we need to know when the view is put into the scene
             BooleanProperty viewInSceneProperty = new SimpleBooleanProperty();
 
-            final FXMLLoader loader = createFxmlLoader(resourceLoader, resource, resourceBundle, codeBehind, root, viewModel, context, viewInSceneProperty, builderFactories);
-
-            loader.load();
-
+            final FXMLLoaderImpl loader = createFxmlLoader(resourceLoader, resource, resourceBundle, codeBehind, root, viewModel, context, viewInSceneProperty, builderFactories);
             final ViewType loadedController = loader.getController();
             final Parent loadedRoot = loader.getRoot();
 
@@ -274,7 +273,7 @@ public class FxmlViewLoader {
         }
     }
 
-    private FXMLLoader createFxmlLoader(Class<?> resourceLoader, String resource, ResourceBundle resourceBundle, View codeBehind, Object root,
+    private FXMLLoaderImpl createFxmlLoader(Class<?> resourceLoader, String resource, ResourceBundle resourceBundle, View codeBehind, Object root,
 			ViewModel viewModel, ContextImpl context, ObservableBooleanValue viewInSceneProperty,
 			List<BuilderFactory> builderFactories) throws IOException {
         // Load FXML file
@@ -285,28 +284,27 @@ public class FxmlViewLoader {
             throw new IOException("Error loading FXML - can't load from given resourcepath: " + resource);
         }
 
-        final FXMLLoader fxmlLoader = new FXMLLoader();
+        final FXMLLoaderImpl fxmlLoader = FXMLLoaderFactory.create(location);
 
-        fxmlLoader.setRoot(root);
         fxmlLoader.setResources(resourceBundle);
-        fxmlLoader.setLocation(location);
+        fxmlLoader.setRoot(root);
 
-        if(builderFactories == null || builderFactories.isEmpty()) {
-        	fxmlLoader.setBuilderFactory(GlobalBuilderFactory.getInstance());
-		} else {
-			BuilderFactory factory = GlobalBuilderFactory.getInstance().mergeWith(builderFactories);
-			fxmlLoader.setBuilderFactory(factory);
-		}
-
+        if (builderFactories == null || builderFactories.isEmpty()) {
+            fxmlLoader.setBuilderFactory(GlobalBuilderFactory.getInstance());
+        } else {
+            BuilderFactory factory = GlobalBuilderFactory.getInstance().mergeWith(builderFactories);
+            fxmlLoader.setBuilderFactory(factory);
+        }
 
         // when the user provides a viewModel but no codeBehind, we need to use
         // the custom controller factory.
         // in all other cases the default factory can be used.
         if (viewModel != null && codeBehind == null) {
-            fxmlLoader
-                    .setControllerFactory(new ControllerFactoryForCustomViewModel(viewModel, resourceBundle, context, viewInSceneProperty));
+            fxmlLoader.setControllerFactory(
+                    new ControllerFactoryForCustomViewModel(viewModel, resourceBundle, context, viewInSceneProperty));
         } else {
-            fxmlLoader.setControllerFactory(new DefaultControllerFactory(resourceBundle, context, viewInSceneProperty));
+            fxmlLoader.setControllerFactory(
+                    new DefaultControllerFactory(resourceBundle, context, viewInSceneProperty));
         }
 
         // When the user provides a codeBehind instance we take care of the
@@ -322,6 +320,7 @@ public class FxmlViewLoader {
             }
         }
 
+        fxmlLoader.load();
         return fxmlLoader;
     }
 
@@ -477,4 +476,5 @@ public class FxmlViewLoader {
             return controller;
         }
     }
+
 }
