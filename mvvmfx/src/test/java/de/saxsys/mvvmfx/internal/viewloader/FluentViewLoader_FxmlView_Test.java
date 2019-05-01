@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
@@ -652,5 +651,23 @@ public class FluentViewLoader_FxmlView_Test {
 					.hasMessageContaining("was referenced in an FXML file")
 					.hasMessageContaining("as the fx:controller");
 		}
+	}
+
+	@Test
+	public void StringFormat_OneTimeAssignment_Evaluated_Once() {
+		TestFxmlViewStaticFunctionExpressionView view =
+			FluentViewLoader.fxmlView(TestFxmlViewStaticFunctionExpressionView.class).load().getCodeBehind();
+		Assertions.assertEquals("Number: 0", view.label1.getText());
+		view.setNumber1(1);
+		Assertions.assertEquals("Number: 0", view.label1.getText());
+	}
+
+	@Test
+	public void StringFormat_Binding_Reevaluated_When_Arguments_Change() {
+		TestFxmlViewStaticFunctionExpressionView view =
+			FluentViewLoader.fxmlView(TestFxmlViewStaticFunctionExpressionView.class).load().getCodeBehind();
+		Assertions.assertEquals("Number: 0 9", view.label2.getText());
+		view.setNumber1(1);
+		Assertions.assertEquals("Number: 1 9", view.label2.getText());
 	}
 }

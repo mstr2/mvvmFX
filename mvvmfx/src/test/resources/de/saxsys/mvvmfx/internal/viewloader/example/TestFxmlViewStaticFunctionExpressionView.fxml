@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/2019.1"
+	  fx:controller="de.saxsys.mvvmfx.internal.viewloader.example.TestFxmlViewStaticFunctionExpressionView">
+
+	<Label fx:id="label1" text="+{String.format(Number: %s, {controller.number1})}"/>
+	<Label fx:id="label2" text="${String.format(Number: %s %s, {controller.number1}, {controller.number2})}"/>
+
+</VBox>

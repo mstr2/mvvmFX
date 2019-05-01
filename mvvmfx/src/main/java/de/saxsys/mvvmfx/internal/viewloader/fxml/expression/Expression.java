@@ -113,11 +113,14 @@ public abstract class Expression<T> {
                 case STATIC_FUNCTION: {
                     if (stack.isEmpty()) {
                         expression = new StaticFunctionExpression(
-                            (KeyPath)token.value, new ArrayList<Expression<?>>(0));
+                            (KeyPath)token.value, new ArrayList<ArgumentExpression>(0));
                     } else {
-                        List<Expression<?>> args = new ArrayList<Expression<?>>(stack.size());
+                        List<ArgumentExpression> args = new ArrayList<ArgumentExpression>(stack.size());
                         while (!stack.isEmpty()) {
-                            args.add(stack.pop());
+                            Expression<?> arg = stack.pop();
+                            if (arg instanceof ArgumentExpression) {
+                                args.add((ArgumentExpression)arg);
+                            }
                         }
 
                         expression = new StaticFunctionExpression((KeyPath)token.value, args);

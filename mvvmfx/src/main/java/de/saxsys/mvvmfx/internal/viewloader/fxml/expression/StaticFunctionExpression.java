@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.saxsys.mvvmfx.internal.viewloader.fxml.expression;
 
 import javafx.beans.value.ObservableValue;
@@ -14,14 +30,14 @@ public class StaticFunctionExpression extends Expression<Object> {
     private static Map<String, Method> methodCache = new HashMap<>();
 
     private final Method method;
-    private final List<Expression<?>> args;
+    private final List<ArgumentExpression> args;
 
-    public StaticFunctionExpression(KeyPath keyPath, List<Expression<?>> args) {
+    public StaticFunctionExpression(KeyPath keyPath, List<ArgumentExpression> args) {
         String funcName = keyPath.toString();
         String funcKey = funcName + "`" + args.size();
         Method method = methodCache.get(funcKey);
         if (method == null) {
-            method = getMethod(funcName, args.size());
+            method = getMethod(funcName, args);
             methodCache.put(funcKey, method);
         }
 
@@ -94,7 +110,7 @@ public class StaticFunctionExpression extends Expression<Object> {
         return res;
     }
 
-    private Method getMethod(String name, int argCount) {
+    private Method getMethod(String name, List<ArgumentExpression> args) {
         if (!name.contains(".")) {
             throw new RuntimeException("Invalid method: " + name);
         }
@@ -121,15 +137,36 @@ public class StaticFunctionExpression extends Expression<Object> {
 
         Method selectedMethod = null;
         for (Method method : clazz.getMethods()) {
-            if (method.getName().equals(methodName)
-                    && (!method.isVarArgs() && method.getParameterCount() == argCount
-                        || method.isVarArgs() && method.getParameterCount() <= argCount)) {
-                if (selectedMethod != null) {
-                    throw new RuntimeException("Ambiguous method reference: " + className + "#" + methodName);
-                }
+            boolean compatibleParamCount =
+                method.getName().equals(methodName)
+                    && (!method.isVarArgs() && method.getParameterCount() == args.size()
+                    || method.isVarArgs() && method.getParameterCount() <= args.size());
 
-                selectedMethod = method;
+            if (!compatibleParamCount) {
+                continue;
             }
+
+            boolean compatibleParamTypes = true;
+            Class<?>[] params = method.getParameterTypes();
+            for (int i = 0; i < (method.isVarArgs() ? params.length - 1 : params.length); ++i) {
+                boolean isString =
+                    args.get(i).getType() == ArgumentExpression.Type.LITERAL
+                        || args.get(i).getType() == ArgumentExpression.Type.RESOURCE_KEY;
+                if (isString && !params[i].isAssignableFrom(String.class)) {
+                    compatibleParamTypes = false;
+                    break;
+                }
+            }
+
+            if (!compatibleParamTypes) {
+                continue;
+            }
+
+            if (selectedMethod != null) {
+                throw new RuntimeException("Ambiguous method reference: " + className + "#" + methodName);
+            }
+
+            selectedMethod = method;
         }
 
         if (selectedMethod == null) {
