@@ -34,11 +34,11 @@ public class FXMLLoaderFactory {
 
     public static FXMLLoaderImpl create(URL location) throws IOException {
         InputStream inputStream = location.openStream();
-        if (inputStream.markSupported()) {
-            inputStream.mark(Integer.MAX_VALUE);
-        } else {
+        if (!inputStream.markSupported()) {
             inputStream = new BufferedInputStream(inputStream);
         }
+
+        inputStream.mark(Integer.MAX_VALUE);
 
         FXMLLoaderImpl fxmlLoader;
         if (useNewFxmlLoader(inputStream)) {
@@ -59,11 +59,11 @@ public class FXMLLoaderFactory {
             Callback<Class<?>, Object> controllerFactory, Charset charset,
             LinkedList<FXMLLoaderImpl> loaders) throws IOException {
         InputStream inputStream = location.openStream();
-        if (inputStream.markSupported()) {
-            inputStream.mark(Integer.MAX_VALUE);
-        } else {
+        if (!inputStream.markSupported()) {
             inputStream = new BufferedInputStream(inputStream);
         }
+
+        inputStream.mark(Integer.MAX_VALUE);
 
         FXMLLoaderImpl fxmlLoader;
         if (useNewFxmlLoader(inputStream)) {
