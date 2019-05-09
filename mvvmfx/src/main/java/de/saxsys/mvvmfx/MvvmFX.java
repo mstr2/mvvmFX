@@ -16,10 +16,10 @@
 package de.saxsys.mvvmfx;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import de.saxsys.mvvmfx.internal.BackgroundExecutorManager;
 import de.saxsys.mvvmfx.internal.viewloader.GlobalBuilderFactory;
 import de.saxsys.mvvmfx.internal.viewloader.ResourceBundleManager;
+import de.saxsys.mvvmfx.internal.viewloader.fxml.expression.StaticFunctionExpression;
 import javafx.util.BuilderFactory;
 import javafx.util.Callback;
 
@@ -28,7 +28,6 @@ import de.saxsys.mvvmfx.utils.notifications.NotificationCenterFactory;
 import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
 
 /**
  * This class is a facade that is used by the user to access classes and services from the framework.
@@ -47,6 +46,15 @@ public class MvvmFX {
 	 */
 	public static void setCustomExecutorService(ListeningExecutorService executorService) {
 		BackgroundExecutorManager.getInstance().setCustomExecutorService(executorService);
+	}
+
+	/**
+	 * This method is used to set known package names that can be used in functional expressions in FXML code.
+	 * Methods that are used in functional expressions can either be referenced using a fully-qualified name, or by
+	 * their simple name if the class is contained in a known package.
+	 */
+	public static void addFxmlKnownPackage(String packageName) {
+		StaticFunctionExpression.addKnownPackage(packageName);
 	}
 	
 	/**

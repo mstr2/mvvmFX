@@ -20,19 +20,30 @@ import javafx.beans.value.ObservableValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class StaticFunctionExpression extends Expression<Object> {
 
-    private static final String[] DEFAULT_PACKAGES = new String[] { "java.lang" };
-    private static Map<String, Method> methodCache = new HashMap<>();
+    private static final Set<String> knownPackages = new HashSet<>();
+    private static final Map<String, Method> methodCache = new HashMap<>();
 
     private final Method method;
     private final List<ArgumentExpression> args;
 
-    public StaticFunctionExpression(KeyPath keyPath, List<ArgumentExpression> args) {
+    static {
+        knownPackages.add("java.lang");
+    }
+
+    public static void addKnownPackage(String packageName) {
+        knownPackages.add(packageName);
+    }
+
+    StaticFunctionExpression(KeyPath keyPath, List<ArgumentExpression> args) {
         String funcName = keyPath.toString();
         String funcKey = funcName + "`" + args.size();
         Method method = methodCache.get(funcKey);
@@ -112,7 +123,7 @@ public class StaticFunctionExpression extends Expression<Object> {
 
     private Method getMethod(String name, List<ArgumentExpression> args) {
         if (!name.contains(".")) {
-            throw new RuntimeException("Invalid method: " + name);
+            throw new RuntimeException("Invalid method reference: " + name);
         }
 
         String className = name.substring(0, name.lastIndexOf("."));
@@ -122,7 +133,7 @@ public class StaticFunctionExpression extends Expression<Object> {
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException ex) {
-            for (String defaultPackage : DEFAULT_PACKAGES) {
+            for (String defaultPackage : knownPackages) {
                 try {
                     clazz = Class.forName(defaultPackage + "." + className);
                     break;
@@ -162,15 +173,23 @@ public class StaticFunctionExpression extends Expression<Object> {
                 continue;
             }
 
-            if (selectedMethod != null) {
-                throw new RuntimeException("Ambiguous method reference: " + className + "#" + methodName);
+            if (selectedMethod != null
+                    && Modifier.isStatic(selectedMethod.getModifiers())
+                    && Modifier.isStatic(method.getModifiers())) {
+                throw new RuntimeException(
+                    "Ambiguous method reference: " + className + "." + methodName
+                        + " [found " + selectedMethod + ", " + method + "]");
             }
 
             selectedMethod = method;
         }
 
         if (selectedMethod == null) {
-            throw new RuntimeException("Method not found: " + className + "#" + methodName);
+            throw new RuntimeException("Method not found: " + className + "." + methodName);
+        }
+
+        if (!Modifier.isStatic(selectedMethod.getModifiers())) {
+            throw new RuntimeException("Method must be static: " + selectedMethod);
         }
 
         return selectedMethod;
